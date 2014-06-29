@@ -5,8 +5,8 @@
  * Main Program to control in-home Terrarium
  */
 #include "Arduino.h"
-#include "Dht11.h"
 #include "Timer.h"
+#include <Dht11.h>
 
 Timer t;
 
@@ -80,10 +80,11 @@ void updateTempHum(){
 
   switch (sensor.read()) {
     case Dht11::OK:
-      temperature = Fahrenheit(sensor.getTemperature());
-      if(temperature < 40){
-        temperature = 0;
+      if(sensor.getTemperature() == 0){
+        t.after(200,updateTempHum);
+        return;
       }
+      temperature = Fahrenheit(sensor.getTemperature());
       humidity = sensor.getHumidity();
       //Refresh a timer to invalidate the temp/hum readings
       t.stop(TempUpdateTimer);
@@ -98,13 +99,13 @@ void updateTempHum(){
     case Dht11::ERROR_CHECKSUM:
       #ifdef SERIAL
         Serial.println("Checksum error");
+        t.after(200,updateTempHum);
       #endif
       break;
     case Dht11::ERROR_TIMEOUT:
       #ifdef SERIAL
         Serial.println("Timeout error");
-        t.after(2000,updateTempHum);
-        
+        t.after(200,updateTempHum);
       #endif
       break;
     default:
@@ -119,7 +120,11 @@ void updateTempHum(){
 }
 
 void heaterLogic(){
-  if(temperature > 0 && temperature < 74){
+  if(temperature == 0){
+    //error, make no decisions
+    return;
+  }
+  if(temperature < 74){
     digitalWrite(HEATER_RELAY_PIN, HIGH);
     #ifdef SERIAL
       Serial.println("Turning Heater On");
