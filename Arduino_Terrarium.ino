@@ -1,4 +1,3 @@
-
 /*
  * Arduino-Terrarium.cpp
  *
@@ -7,6 +6,9 @@
 #include "Arduino.h"
 #include "Timer.h"
 #include <Dht11.h>
+#include <Wire.h>
+#include <LCD.h>
+#include <LiquidCrystal_I2C.h>
 
 Timer t;
 
@@ -36,6 +38,18 @@ enum {
 };
 byte lightPins[] PROGMEM = {REDLIGHT_PIN,GREENLIGHT_PIN,BLUELIGHT_PIN};
 
+enum {
+  I2C_ADDR = 0x3F,
+  BACKLIGHT_PIN = 3,
+  En_pin = 2,
+  Rw_pin = 1,
+  Rs_pin = 0,
+  D4_pin = 4,
+  D5_pin = 5,
+  D6_pin = 6,
+  D7_pin = 7,
+};
+LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin,3, POSITIVE);
 
 //Celsius to Fahrenheit conversion
 double Fahrenheit(double celsius)
@@ -54,6 +68,11 @@ void setup() {
     Serial.println("Serial Connection Established");
   #endif
   
+  lcd.begin (20,4);
+  // Switch on the backlight
+  lcd.setBacklightPin(BACKLIGHT_PIN,POSITIVE);
+  lcd.setBacklight(HIGH);
+
   //Set up color select pins
   pinMode(COLOR_SELECT_INPUT, INPUT);
   pinMode(DIMMER_INPUT, INPUT);
@@ -86,6 +105,14 @@ void updateTempHum(){
       }
       temperature = Fahrenheit(sensor.getTemperature());
       humidity = sensor.getHumidity();
+      lcd.setCursor(0,1);
+      lcd.print(F("Temperature: "));
+      lcd.print(temperature);
+      lcd.print(F(" F"));
+      lcd.setCursor(0,2);
+      lcd.print(F("Humidity: "));
+      lcd.print(humidity);
+      lcd.print(F(" %"));
       //Refresh a timer to invalidate the temp/hum readings
       t.stop(TempUpdateTimer);
       TempUpdateTimer = t.after(5*60000,invalidateTempReadings);
@@ -150,13 +177,14 @@ void loop() {
   
   t.update();
    
-   colorSelect = lightPins[(int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS)];
-   dimmer = analogRead(DIMMER_INPUT);
-   analogWrite(colorSelect, dimmer / 4);
-   /*
-   Serial.print(F("Color "));
-   Serial.print(colorSelect);
-   Serial.print(" = ");
-   Serial.println(dimmer / 4);
-   */
+  colorSelect = lightPins[(int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS)];
+  dimmer = analogRead(DIMMER_INPUT);
+  analogWrite(colorSelect, dimmer / 4);
+
+  delay(200);
+  lcd.setCursor(0,0);
+  lcd.print(F("Color "));
+  lcd.print((int)analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS);
+  lcd.print(F(" = "));
+  lcd.print(dimmer / 4);
 }
