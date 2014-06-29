@@ -66,7 +66,7 @@ double Fahrenheit(double celsius)
 void setup() {
   #ifdef SERIAL
     Serial.begin(SERIAL_BAUD);
-    Serial.println("Serial Connection Established");
+    Serial.println(F("Serial Connection Established"));
   #endif
   
   lcd.begin (20,4);
@@ -91,6 +91,9 @@ void setup() {
 }
 
 void invalidateTempReadings(){
+  #ifdef SERIAL
+    Serial.println(F("Invalidating Temperature Readings"));
+  #endif
   temperature = 0;
   humidity = 0;
 }
@@ -116,7 +119,7 @@ void updateTempHum(){
       lcd.print(F(" %"));
       //Refresh a timer to invalidate the temp/hum readings
       t.stop(TempUpdateTimer);
-      TempUpdateTimer = t.after(5*60000,invalidateTempReadings);
+      TempUpdateTimer = t.after(300000,invalidateTempReadings);
       #ifdef SERIAL
         Serial.print("Humidity (%): ");
         Serial.println(humidity);
