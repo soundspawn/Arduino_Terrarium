@@ -86,7 +86,6 @@ void setup() {
 
   //Set Temperature/Humidity Update Timer
   t.every(60000, updateTempHum);
-  delay(1000);
   updateTempHum();
 }
 
