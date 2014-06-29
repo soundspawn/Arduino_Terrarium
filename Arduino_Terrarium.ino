@@ -12,6 +12,10 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <avr/wdt.h>
+#include <JsonArray.h>
+#include <JsonHashTable.h>
+#include <JsonObjectBase.h>
+#include <JsonParser.h>
 
 Timer t;
 
@@ -65,6 +69,9 @@ EthernetClient serverajax;
 boolean ServerConnected = false;
 int ServerTimeout;
 
+JsonParser<32> parser;
+JsonHashTable hashTable;
+
 //Celsius to Fahrenheit conversion
 double Fahrenheit(double celsius)
 {
@@ -100,6 +107,11 @@ void setup() {
   //Set Temperature/Humidity Update Timer
   t.every(60000, updateTempHum);
   updateTempHum();
+  
+/* Need to work this out
+  t.every(10000,ServerTime);
+  ServerTime();
+*/
 
   Ethernet.begin(mac, ip);
   server.begin();
@@ -229,34 +241,35 @@ void httpServer(){
   }
 }
 
-void httpClient(){
-  if (serverajax.available()) {
-    char c = serverajax.read();
-    ServerTimeout = 0;
-    #ifdef SERIAL
-      Serial.print(c);
-    #endif
+char* Ajax(char *url){
+  delay(2000);
+  if(serverajax.connect("soundspawn.com",80)){
+    serverajax.println("GET /proxy/proxy.php?url=https%3A//jarvis.soundspawn.com/terrarium/get_time HTTP/1.0");
+    serverajax.println();
   }
-  if(!serverajax.connected() && ServerConnected){
-    #ifdef SERIAL
-      Serial.println(F("disconnecting."));
-    #endif
-    serverajax.stop();
+  while(serverajax.connected()){
+    if(serverajax.available()){
+      Serial.println("connected");
+      String dummy = serverajax.readString();
+      Serial.print("Dummy: ");
+      Serial.println(dummy);
+      char d2[dummy.length()];
+      dummy.toCharArray(d2,dummy.length());
+      Serial.print("D2: ");
+      Serial.println(d2);
+      return d2;
+    }
   }
-  ServerConnected = serverajax.connected();
-  if(ServerConnected){
-    ServerTimeout++;
-    delay(1);
-  }
+}
 
-  //Server Response Timeout
-  if(ServerTimeout > 3000 && ServerConnected){
-    serverajax.stop();
-    ServerConnected = false;
-    #ifdef SERIAL
-      Serial.println(F("timeout"));
-    #endif
+void ServerTime(){
+  hashTable = parser.parseHashTable(Ajax(""));
+  if(!hashTable.success()){
+    return;
   }
+  unsigned long time = hashTable.getLong("now");
+  lcd.setCursor(0,3);
+  lcd.print(time);
 }
 
 /*
@@ -274,7 +287,6 @@ void loop() {
 
   //Receive http request
   httpServer();
-  httpClient();
    
   colorSelect = lightPins[(int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS)];
   dimmer = analogRead(DIMMER_INPUT);
