@@ -120,27 +120,28 @@ void updateTempHum(){
       t.stop(TempUpdateTimer);
       TempUpdateTimer = t.after(300000,invalidateTempReadings);
       #ifdef SERIAL
-        Serial.print("Humidity (%): ");
+        Serial.print(F("Humidity (%): "));
         Serial.println(humidity);
-        Serial.print("Temperature (F): ");
+        Serial.print(F("Temperature (F): "));
         Serial.println(temperature);
       #endif
       break;
     case Dht11::ERROR_CHECKSUM:
       #ifdef SERIAL
-        Serial.println("Checksum error");
+        Serial.println(F("Checksum error"));
         t.after(200,updateTempHum);
       #endif
       break;
     case Dht11::ERROR_TIMEOUT:
       #ifdef SERIAL
-        Serial.println("Timeout error");
+        Serial.println(F("Timeout error"));
         t.after(200,updateTempHum);
       #endif
       break;
     default:
       #ifdef SERIAL
-        Serial.println("Unknown error");
+        Serial.println(F("Unknown error"));
+        t.after(200,updateTempHum);
       #endif
       break;
   }
@@ -157,12 +158,16 @@ void heaterLogic(){
   if(temperature < 74){
     digitalWrite(HEATER_RELAY_PIN, HIGH);
     #ifdef SERIAL
-      Serial.println("Turning Heater On");
+      Serial.println(F("Turning Heater On"));
     #endif
   }else{
     digitalWrite(HEATER_RELAY_PIN, LOW);
     #ifdef SERIAL
-      Serial.println("Turning Heater Off");
+      Serial.println(F("Turning Heater Off"));
+    #endif
+  }
+}
+
     #endif
   }
 }
