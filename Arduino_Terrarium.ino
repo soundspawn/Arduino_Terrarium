@@ -34,8 +34,8 @@ enum {
   BLUELIGHT_PIN = 4,
   COLOR_DIVISIONS = (int)(1024 / 3)+2,
 };
+byte lightPins[] PROGMEM = {REDLIGHT_PIN,GREENLIGHT_PIN,BLUELIGHT_PIN};
 
-byte lightPins[] = {REDLIGHT_PIN,GREENLIGHT_PIN,BLUELIGHT_PIN};
 
 //Celsius to Fahrenheit conversion
 double Fahrenheit(double celsius)
