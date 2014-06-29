@@ -9,6 +9,9 @@
 #include <Wire.h>
 #include <LCD.h>
 #include <LiquidCrystal_I2C.h>
+#include <SPI.h>
+#include <Ethernet.h>
+#include <avr/wdt.h>
 
 Timer t;
 
@@ -52,6 +55,16 @@ enum {
 };
 LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin,3, POSITIVE);
 
+byte mac[] = { 0xDE, 0xAD, 0xB0, 0xEF, 0xFE, 0xAF };
+IPAddress ip(192,168,1, 16);
+EthernetServer server(80);
+String HTTP_req;
+EthernetClient client;
+EthernetClient serverajax;
+
+boolean ServerConnected = false;
+int ServerTimeout;
+
 //Celsius to Fahrenheit conversion
 double Fahrenheit(double celsius)
 {
@@ -87,6 +100,9 @@ void setup() {
   //Set Temperature/Humidity Update Timer
   t.every(60000, updateTempHum);
   updateTempHum();
+
+  Ethernet.begin(mac, ip);
+  server.begin();
 }
 
 void invalidateTempReadings(){
@@ -168,6 +184,77 @@ void heaterLogic(){
   }
 }
 
+void httpServer(){
+  //Web Server
+  client = server.available();
+  if (client) {
+    // an http request ends with a blank line
+    boolean currentLineIsBlank = true;
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+        HTTP_req += c;
+
+        if (c == '\n' && currentLineIsBlank) {
+          // send a standard http response header
+          client.println(F("HTTP/1.1 200 OK"));
+          client.println(F("Content-Type: application/json"));
+          client.println(F("Connection: close"));  // the connection will be closed after completion of the response
+          client.println();
+
+          if(HTTP_req.indexOf("/get_temperature") == 4){
+            client.print(F("{\"result\":true,\"temperature\":"));
+            client.print(temperature);
+            client.print(F(",\"humidity\":"));
+            client.print(humidity);
+            client.print(F("}"));
+          }
+          HTTP_req = "";
+          break;
+        }
+        if (c == '\n') {
+          // you're starting a new line
+          currentLineIsBlank = true;
+        }
+        else if (c != '\r') {
+          // you've gotten a character on the current line
+          currentLineIsBlank = false;
+        }
+      }
+    }
+    // give the web browser time to receive the data
+    delay(1);
+    // close the connection:
+    client.stop();
+  }
+}
+
+void httpClient(){
+  if (serverajax.available()) {
+    char c = serverajax.read();
+    ServerTimeout = 0;
+    #ifdef SERIAL
+      Serial.print(c);
+    #endif
+  }
+  if(!serverajax.connected() && ServerConnected){
+    #ifdef SERIAL
+      Serial.println(F("disconnecting."));
+    #endif
+    serverajax.stop();
+  }
+  ServerConnected = serverajax.connected();
+  if(ServerConnected){
+    ServerTimeout++;
+    delay(1);
+  }
+
+  //Server Response Timeout
+  if(ServerTimeout > 3000 && ServerConnected){
+    serverajax.stop();
+    ServerConnected = false;
+    #ifdef SERIAL
+      Serial.println(F("timeout"));
     #endif
   }
 }
@@ -184,6 +271,10 @@ void loop() {
   static int dimmer;
   
   t.update();
+
+  //Receive http request
+  httpServer();
+  httpClient();
    
   colorSelect = lightPins[(int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS)];
   dimmer = analogRead(DIMMER_INPUT);
