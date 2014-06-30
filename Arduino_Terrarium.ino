@@ -104,14 +104,10 @@ void setup() {
   //Setup Outputs
   pinMode(HEATER_RELAY_PIN, OUTPUT);
 
-  //Set Temperature/Humidity Update Timer
-  t.every(60000, updateTempHum);
+  //Timer-based Function
+  //These will set a timer upon their completion
   updateTempHum();
-  
-/* Need to work this out
-  t.every(10000,ServerTime);
   ServerTime();
-*/
 
   Ethernet.begin(mac, ip);
   server.begin();
@@ -158,24 +154,28 @@ void updateTempHum(){
       #ifdef SERIAL
         Serial.println(F("Checksum error"));
         t.after(200,updateTempHum);
+        return;
       #endif
       break;
     case Dht11::ERROR_TIMEOUT:
       #ifdef SERIAL
         Serial.println(F("Timeout error"));
         t.after(200,updateTempHum);
+        return;
       #endif
       break;
     default:
       #ifdef SERIAL
         Serial.println(F("Unknown error"));
         t.after(200,updateTempHum);
+        return;
       #endif
       break;
   }
 
   //Decide what to do with the heater
   heaterLogic();
+  t.after(60000,updateTempHum);
 }
 
 void heaterLogic(){
@@ -242,34 +242,46 @@ void httpServer(){
 }
 
 char* Ajax(char *url){
-  delay(2000);
+  String message;
+  String submessage;
+  char c;
+  message = "";
   if(serverajax.connect("soundspawn.com",80)){
     serverajax.println("GET /proxy/proxy.php?url=https%3A//jarvis.soundspawn.com/terrarium/get_time HTTP/1.0");
+    serverajax.println("Host: soundspawn.com");
+    serverajax.println("Connection: close");
     serverajax.println();
-  }
-  while(serverajax.connected()){
-    if(serverajax.available()){
-      Serial.println("connected");
-      String dummy = serverajax.readString();
-      Serial.print("Dummy: ");
-      Serial.println(dummy);
-      char d2[dummy.length()];
-      dummy.toCharArray(d2,dummy.length());
-      Serial.print("D2: ");
-      Serial.println(d2);
-      return d2;
+    while(serverajax.connected()){
+      if(serverajax.available()){
+        c = serverajax.read();
+        message += c;
+      }
     }
+    submessage = message.substring(message.indexOf("{"),message.length());
+    submessage += "}";
+    char d2[message.length()];
+    submessage.toCharArray(d2,submessage.length());
+    serverajax.stop();
+    if(submessage.length() == 1){
+      return (char*)F("{\"result\":false,\"message\":\"Arduino Ajax Abandoned Connection before response\"}");
+    }
+    return d2;
   }
+  return (char*)F("{\"result\":false,\"message\":\"Arduino Ajax Connection Error\"}");
 }
 
 void ServerTime(){
-  hashTable = parser.parseHashTable(Ajax(""));
+  char* ajax = Ajax("");
+  hashTable = parser.parseHashTable(ajax);
   if(!hashTable.success()){
+    t.after(5000,ServerTime);
     return;
   }
   unsigned long time = hashTable.getLong("now");
   lcd.setCursor(0,3);
   lcd.print(time);
+
+  t.after(60000,ServerTime);
 }
 
 /*
