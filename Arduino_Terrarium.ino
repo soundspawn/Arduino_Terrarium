@@ -26,7 +26,7 @@ byte humidity = 0;
 
 enum {
     // The data I/O pin connected to the DHT11 sensor
-    DHT_DATA_PIN = 13,
+    DHT_DATA_PIN = 9,
     // The baud rate of the serial interface
     SERIAL_BAUD  = 9600,
 
