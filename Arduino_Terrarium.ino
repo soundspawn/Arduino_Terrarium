@@ -119,6 +119,7 @@ void invalidateTempReadings(){
   #endif
   temperature = 0;
   humidity = 0;
+  digitalWrite(HEATER_RELAY_PIN, LOW);
 }
 
 void updateTempHum(){
