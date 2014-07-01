@@ -19,6 +19,8 @@
 
 Timer t;
 
+byte desired_temperature = 76;
+byte temperature_allowance = 3;
 byte temperature = 0;
 byte humidity = 0;
 byte heater_on = 0;
@@ -201,7 +203,9 @@ void heaterLogic(){
     //error, make no decisions
     return;
   }
-  if(temperature < 74){
+  if((heater_on == 0 && temperature < (desired_temperature-temperature_allowance)) || 
+     (heater_on == 1 && temperature < desired_temperature)
+  ){
     digitalWrite(HEATER_RELAY_PIN, HIGH);
     heater_on = 1;
     #ifdef SERIALCOM
