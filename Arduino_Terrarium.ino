@@ -21,6 +21,7 @@ Timer t;
 
 byte temperature = 0;
 byte humidity = 0;
+byte heater_on = 0;
 
 #define SERIALCOM
 
@@ -199,11 +200,13 @@ void heaterLogic(){
   }
   if(temperature < 74){
     digitalWrite(HEATER_RELAY_PIN, HIGH);
+    heater_on = 1;
     #ifdef SERIALCOM
       Serial.println(F("Turning Heater On"));
     #endif
   }else{
     digitalWrite(HEATER_RELAY_PIN, LOW);
+    heater_on = 0;
     #ifdef SERIALCOM
       Serial.println(F("Turning Heater Off"));
     #endif
