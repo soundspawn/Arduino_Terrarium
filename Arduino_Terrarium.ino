@@ -346,6 +346,40 @@ void httpServer(){
             client.print(buffer);
           }
 
+          if(HTTP_req.indexOf("/set_gradient/") ==  4){
+            String sub = "";
+            String sub2 = "";
+            String sub3 = "";
+            sub = HTTP_req.substring(18,100);
+            sub = sub.substring(0,sub.indexOf("/"));
+            byte red = sub.toInt();
+            sub2 = HTTP_req.substring(13+sub.length()+1,100);
+            sub2 = sub2.substring(0,sub2.indexOf("/"));
+            byte green = sub2.toInt();
+            sub3 = HTTP_req.substring(13+sub.length()+sub2.length()+2,100);
+            sub3 = sub2.substring(0,sub3.indexOf("/"));
+            byte blue = sub3.toInt();
+            sub3 = HTTP_req.substring(13+sub.length()+sub2.length()+sub3.length()+3,100);
+            unsigned long time = sub3.toInt();
+
+            #ifdef SERIALCOM
+              Serial.println(F("Setting Gradient: "));
+              Serial.println(red);
+              Serial.println(green);
+              Serial.println(blue);
+              Serial.print(F("over "));
+              Serial.print(time);
+              Serial.println(F("ms"));
+            #endif
+
+            set_color_gradient(red,green,blue,time);
+
+            strcpy_P(buffer,genericAjaxSuccess);
+            client.print(buffer);
+            strcpy_P(buffer,genericAjaxClose);
+            client.print(buffer);
+          }
+
           if(HTTP_req.indexOf("/set_thermostat/") == 4){
             String sub = "";
             sub = HTTP_req.substring(20,100);
