@@ -334,7 +334,7 @@ void ServerTime(){
   char* ajax = Ajax("terrarium/get_time");
   hashTable = parser.parseHashTable(ajax);
   if(!hashTable.success()){
-    t.after(5000,ServerTime);
+    t.after(1000,ServerTime);
     return;
   }
   unsigned long time = hashTable.getLong("now");
