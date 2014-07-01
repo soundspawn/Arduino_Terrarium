@@ -170,24 +170,21 @@ void updateTempHum(){
     case Dht11::ERROR_CHECKSUM:
       #ifdef SERIALCOM
         Serial.println(F("Checksum error"));
-        t.after(200,updateTempHum);
-        return;
       #endif
-      break;
+      t.after(200,updateTempHum);
+      return;
     case Dht11::ERROR_TIMEOUT:
       #ifdef SERIALCOM
         Serial.println(F("Timeout error"));
-        t.after(200,updateTempHum);
-        return;
       #endif
-      break;
+      t.after(200,updateTempHum);
+      return;
     default:
       #ifdef SERIALCOM
         Serial.println(F("Unknown error"));
-        t.after(200,updateTempHum);
-        return;
       #endif
-      break;
+      t.after(200,updateTempHum);
+      return;
   }
 
   //Decide what to do with the heater
