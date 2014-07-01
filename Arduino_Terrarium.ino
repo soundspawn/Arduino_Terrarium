@@ -79,9 +79,8 @@ JsonParser<32> parser;
 JsonHashTable hashTable;
 
 //Celsius to Fahrenheit conversion
-double Fahrenheit(double celsius)
-{
-	return 1.8 * celsius + 32;
+double Fahrenheit(double celsius){
+  return 1.8 * celsius + 32;
 }
 
 /*
