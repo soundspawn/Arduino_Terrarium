@@ -341,6 +341,7 @@ void httpServer(){
 char* Ajax(char *url){
   String message;
   String submessage;
+  int connectLoop = 0;
   char c;
   message = "";
   if(serverajax.connect("soundspawn.com",80)){
@@ -351,9 +352,15 @@ char* Ajax(char *url){
     serverajax.println(F("Connection: close"));
     serverajax.println();
     while(serverajax.connected()){
+      connectLoop++;
       if(serverajax.available()){
         c = serverajax.read();
+        connectLoop = 0;
         message += c;
+      }
+      if(connectLoop > 10000){
+        return (char*)F("{\"result\":false,\"message\":\"AJAX Timeout\"}");
+        serverajax.stop();
       }
     }
     submessage = message.substring(message.indexOf("{"),message.length());
