@@ -23,6 +23,9 @@ byte temperature = 0;
 byte humidity = 0;
 byte heater_on = 0;
 
+const char genericAjaxSuccess[] PROGMEM = "{\"result\":true";
+const char genericAjaxFailure[] PROGMEM = "{\"result\":false";
+const char genericAjaxClose[] PROGMEM = "}";
 #define SERIALCOM
 
 enum {
@@ -232,13 +235,50 @@ void httpServer(){
           client.println();
 
           if(HTTP_req.indexOf("/get_temperature") == 4){
-            client.print(F("{\"result\":true,\"temperature\":"));
+            strcpy_P(buffer,genericAjaxSuccess);
+            client.print(buffer);
+            client.print(F(",\"temperature\":"));
             client.print(temperature);
             client.print(F(",\"humidity\":"));
             client.print(humidity);
-            client.print(F("}"));
+            client.print(F(",\"thermostat\":"));
+            client.print(desired_temperature);
+            client.print(F(",\"temperature_allowance\":"));
+            client.print(temperature_allowance);
+            client.print(F(",\"heater_status\":"));
+            client.print(heater_on);
+            strcpy_P(buffer,genericAjaxClose);
+            client.print(buffer);
           }
-          HTTP_req = "";
+
+          if(HTTP_req.indexOf("/set_color/") == 4){
+            String sub = "";
+            sub = HTTP_req.substring(15,100);
+            sub = sub.substring(0,sub.indexOf("/"));
+            byte color = sub.toInt();
+            sub = HTTP_req.substring(15+sub.length()+1,100);
+            byte intensity = sub.toInt();
+            analogWrite(lightPins[color], intensity);
+            strcpy_P(buffer,genericAjaxSuccess);
+            client.print(buffer);
+            strcpy_P(buffer,genericAjaxClose);
+            client.print(buffer);
+          }
+
+          if(HTTP_req.indexOf("/set_thermostat/") == 4){
+            String sub = "";
+            sub = HTTP_req.substring(20,100);
+            sub = sub.substring(0,sub.indexOf("/"));
+            desired_temperature = sub.toInt();
+            sub = HTTP_req.substring(20+sub.length()+1,100);
+            temperature_allowance = sub.toInt();
+            strcpy_P(buffer,genericAjaxSuccess);
+            client.print(buffer);
+            strcpy_P(buffer,genericAjaxClose);
+            client.print(buffer);
+            heaterLogic();
+          }
+
           break;
         }
         if (c == '\n') {
