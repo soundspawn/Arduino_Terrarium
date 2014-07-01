@@ -333,7 +333,7 @@ void httpServer(){
             byte blue = sub2.toInt();
 
             #ifdef SERIALCOM
-              Serial.println("Setting RGB: ");
+              Serial.println(F("Setting RGB: "));
               Serial.println(red);
               Serial.println(green);
               Serial.println(blue);
