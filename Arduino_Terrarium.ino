@@ -25,6 +25,8 @@ byte temperature = 0;
 byte humidity = 0;
 byte heater_on = 0;
 
+//Color Intensities
+byte colors[] = {0,0,0};
 const char genericAjaxSuccess[] PROGMEM = "{\"result\":true";
 const char genericAjaxFailure[] PROGMEM = "{\"result\":false";
 const char genericAjaxClose[] PROGMEM = "}";
