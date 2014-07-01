@@ -219,10 +219,15 @@ void heaterLogic(){
   }
 }
 
+void set_color_intensity(byte color, byte intensity){
+  analogWrite(lightPins[color], intensity);
+  colors[color] = intensity;
+}
+
 void set_rgb(byte red, byte green, byte blue){
-  analogWrite(lightPins[0], red);
-  analogWrite(lightPins[1], green);
-  analogWrite(lightPins[2], blue);
+  set_color_intensity(0, red);
+  set_color_intensity(1, green);
+  set_color_intensity(2, blue);
 }
 
 void httpServer(){
@@ -269,7 +274,7 @@ void httpServer(){
             byte color = sub.toInt();
             sub = HTTP_req.substring(15+sub.length()+1,100);
             byte intensity = sub.toInt();
-            analogWrite(lightPins[color], intensity);
+            set_color_intensity(color, intensity);
             strcpy_P(buffer,genericAjaxSuccess);
             client.print(buffer);
             strcpy_P(buffer,genericAjaxClose);
@@ -407,14 +412,14 @@ void loop() {
   //Receive http request
   httpServer();
    
-  colorSelect = lightPins[(int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS)];
+  colorSelect = (int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS);
   dimmer = analogRead(DIMMER_INPUT);
-  analogWrite(colorSelect, dimmer / 4);
+  set_color_intensity(colorSelect, dimmer / 4);
   if((int)analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS < 3){
     delay(200);
     lcd.setCursor(0,0);
     lcd.print(F("Color "));
-    lcd.print((int)analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS);
+    lcd.print(colorSelect);
     lcd.print(F(" = "));
     lcd.print(dimmer / 4);
   }
