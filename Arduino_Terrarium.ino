@@ -63,7 +63,6 @@ LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin,
 byte mac[] = { 0xDE, 0xAD, 0xB0, 0xEF, 0xFE, 0xAF };
 IPAddress ip(192,168,1, 16);
 EthernetServer server(80);
-String HTTP_req;
 EthernetClient client;
 EthernetClient serverajax;
 
@@ -217,6 +216,7 @@ void httpServer(){
   //Web Server
   client = server.available();
   if (client) {
+    String HTTP_req = "";
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
     while (client.connected()) {
