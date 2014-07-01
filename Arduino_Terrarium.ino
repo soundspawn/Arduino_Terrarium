@@ -22,7 +22,7 @@ Timer t;
 byte temperature = 0;
 byte humidity = 0;
 
-#define SERIAL
+#define SERIALCOM
 
 enum {
     // The data I/O pin connected to the DHT11 sensor
@@ -84,7 +84,7 @@ double Fahrenheit(double celsius)
  * One-time initialization of the module.
  */
 void setup() {
-  #ifdef SERIAL
+  #ifdef SERIALCOM
     Serial.begin(SERIAL_BAUD);
     Serial.println(F("Serial Connection Established"));
   #endif
@@ -130,7 +130,7 @@ int memoryTest() {
 }
 
 void invalidateTempReadings(){
-  #ifdef SERIAL
+  #ifdef SERIALCOM
     Serial.println(F("Invalidating Temperature Readings"));
   #endif
   temperature = 0;
@@ -160,7 +160,7 @@ void updateTempHum(){
       //Refresh a timer to invalidate the temp/hum readings
       t.stop(TempUpdateTimer);
       TempUpdateTimer = t.after(300000,invalidateTempReadings);
-      #ifdef SERIAL
+      #ifdef SERIALCOM
         Serial.print(F("Humidity (%): "));
         Serial.println(humidity);
         Serial.print(F("Temperature (F): "));
@@ -168,21 +168,21 @@ void updateTempHum(){
       #endif
       break;
     case Dht11::ERROR_CHECKSUM:
-      #ifdef SERIAL
+      #ifdef SERIALCOM
         Serial.println(F("Checksum error"));
         t.after(200,updateTempHum);
         return;
       #endif
       break;
     case Dht11::ERROR_TIMEOUT:
-      #ifdef SERIAL
+      #ifdef SERIALCOM
         Serial.println(F("Timeout error"));
         t.after(200,updateTempHum);
         return;
       #endif
       break;
     default:
-      #ifdef SERIAL
+      #ifdef SERIALCOM
         Serial.println(F("Unknown error"));
         t.after(200,updateTempHum);
         return;
@@ -202,12 +202,12 @@ void heaterLogic(){
   }
   if(temperature < 74){
     digitalWrite(HEATER_RELAY_PIN, HIGH);
-    #ifdef SERIAL
+    #ifdef SERIALCOM
       Serial.println(F("Turning Heater On"));
     #endif
   }else{
     digitalWrite(HEATER_RELAY_PIN, LOW);
-    #ifdef SERIAL
+    #ifdef SERIALCOM
       Serial.println(F("Turning Heater Off"));
     #endif
   }
