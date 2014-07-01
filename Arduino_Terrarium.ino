@@ -297,11 +297,13 @@ void httpServer(){
         }
       }
     }
-    // give the web browser time to receive the data
-    delay(1);
-    // close the connection:
-    client.stop();
+      // close the connection:
+      client.stop();
+      // give the web browser time to receive the data
+      delay(1);
   }
+  // close the connection:
+  client.stop();
 }
 
 char* Ajax(char *url){
