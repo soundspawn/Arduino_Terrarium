@@ -27,6 +27,9 @@ byte heater_on = 0;
 
 //Color Intensities
 byte colors[] = {0,0,0};
+float gradient[] = {0,0,0};
+byte color_gradient_timer = 255;
+
 const char genericAjaxSuccess[] PROGMEM = "{\"result\":true";
 const char genericAjaxFailure[] PROGMEM = "{\"result\":false";
 const char genericAjaxClose[] PROGMEM = "}";
@@ -224,6 +227,40 @@ void heaterLogic(){
 void set_color_intensity(byte color, byte intensity){
   analogWrite(lightPins[color], intensity);
   colors[color] = intensity;
+}
+
+void set_color_gradient(byte red, byte green, byte blue, unsigned long transition_time){
+  signed int gradients[3];
+  signed long seconds = transition_time/1000;
+  signed long secondMod = 1;
+  byte i = 0;
+  byte lowest = 0;
+  gradients[0] = (colors[0] - red) / seconds;
+  gradients[1] = (colors[1] - green) / seconds;
+  gradients[2] = (colors[2] - blue) / seconds;
+  //increase the secondMod until at least one color is incrementing by a whole number
+  for(i=1;i<3;i++){
+    if(gradients[i]>0 && gradients[i] < gradients[lowest]){
+      lowest = i;
+    }
+  }
+  while(gradients[lowest]>0 && gradients[lowest]*secondMod < 1){
+    secondMod++;
+  }
+  //Stop any existing gradient timer
+  t.stop(color_gradient_timer);
+  if(gradients[lowest] > 0 && seconds > 0){
+    gradient[0] = gradients[0]*secondMod;
+    gradient[1] = gradients[1]*secondMod;
+    gradient[2] = gradients[2]*secondMod;
+    color_gradient_timer = t.every(1000*secondMod,color_gradient,floor(seconds/secondMod));
+  }
+}
+
+void color_gradient(){
+  for(int i = 0; i < 3; i++){
+    set_color_intensity(i,colors[i] + gradient[i]);
+  }
 }
 
 void set_rgb(byte red, byte green, byte blue){
