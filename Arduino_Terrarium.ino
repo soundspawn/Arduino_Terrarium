@@ -261,9 +261,11 @@ char* Ajax(char *url){
   char c;
   message = "";
   if(serverajax.connect("soundspawn.com",80)){
-    serverajax.println("GET /proxy/proxy.php?url=https%3A//jarvis.soundspawn.com/terrarium/get_time HTTP/1.0");
-    serverajax.println("Host: soundspawn.com");
-    serverajax.println("Connection: close");
+    serverajax.print(F("GET /proxy/proxy.php?url=https%3A//jarvis.soundspawn.com/"));
+    serverajax.print(url);
+    serverajax.println(F(" HTTP/1.0"));
+    serverajax.println(F("Host: soundspawn.com"));
+    serverajax.println(F("Connection: close"));
     serverajax.println();
     while(serverajax.connected()){
       if(serverajax.available()){
@@ -285,7 +287,7 @@ char* Ajax(char *url){
 }
 
 void ServerTime(){
-  char* ajax = Ajax("");
+  char* ajax = Ajax("terrarium/get_time");
   hashTable = parser.parseHashTable(ajax);
   if(!hashTable.success()){
     t.after(5000,ServerTime);
