@@ -304,11 +304,12 @@ void loop() {
   colorSelect = lightPins[(int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS)];
   dimmer = analogRead(DIMMER_INPUT);
   analogWrite(colorSelect, dimmer / 4);
-
-  delay(200);
-  lcd.setCursor(0,0);
-  lcd.print(F("Color "));
-  lcd.print((int)analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS);
-  lcd.print(F(" = "));
-  lcd.print(dimmer / 4);
+  if((int)analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS < 3){
+    delay(200);
+    lcd.setCursor(0,0);
+    lcd.print(F("Color "));
+    lcd.print((int)analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS);
+    lcd.print(F(" = "));
+    lcd.print(dimmer / 4);
+  }
 }
