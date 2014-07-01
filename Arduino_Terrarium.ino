@@ -220,6 +220,12 @@ void heaterLogic(){
   }
 }
 
+void set_rgb(byte red, byte green, byte blue){
+  analogWrite(lightPins[0], red);
+  analogWrite(lightPins[1], green);
+  analogWrite(lightPins[2], blue);
+}
+
 void httpServer(){
   //Web Server
   client = server.available();
@@ -265,6 +271,32 @@ void httpServer(){
             sub = HTTP_req.substring(15+sub.length()+1,100);
             byte intensity = sub.toInt();
             analogWrite(lightPins[color], intensity);
+            strcpy_P(buffer,genericAjaxSuccess);
+            client.print(buffer);
+            strcpy_P(buffer,genericAjaxClose);
+            client.print(buffer);
+          }
+
+          if(HTTP_req.indexOf("/set_rgb/") ==  4){
+            String sub = "";
+            String sub2 = "";
+            sub = HTTP_req.substring(13,100);
+            sub = sub.substring(0,sub.indexOf("/"));
+            byte red = sub.toInt();
+            sub2 = HTTP_req.substring(13+sub.length()+1,100);
+            sub2 = sub2.substring(0,sub2.indexOf("/"));
+            byte green = sub2.toInt();
+            sub2 = HTTP_req.substring(13+sub.length()+sub2.length()+2,100);
+            byte blue = sub2.toInt();
+
+            #ifdef SERIALCOM
+              Serial.println("Setting RGB: ");
+              Serial.println(red);
+              Serial.println(green);
+              Serial.println(blue);
+            #endif
+            set_rgb(red,green,blue);
+
             strcpy_P(buffer,genericAjaxSuccess);
             client.print(buffer);
             strcpy_P(buffer,genericAjaxClose);
