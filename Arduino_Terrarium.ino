@@ -113,6 +113,22 @@ void setup() {
   server.begin();
 }
 
+int memoryTest() {
+  int byteCounter = 0; // initialize a counter
+  byte *byteArray; // create a pointer to a byte array
+  // More on pointers here: http://en.wikipedia.org/wiki/Pointer#C_pointers
+
+  // use the malloc function to repeatedly attempt allocating a certain number of bytes to memory
+  // More on malloc here: http://en.wikipedia.org/wiki/Malloc
+  while ( (byteArray = (byte*) malloc (byteCounter * sizeof(byte))) != NULL ) {
+    byteCounter++; // if allocation was successful, then up the count for the next try
+    free(byteArray); // free memory after allocating it
+  }
+
+  free(byteArray); // also free memory after the function finishes
+  return byteCounter; // send back the highest number of bytes successfully allocated
+}
+
 void invalidateTempReadings(){
   #ifdef SERIAL
     Serial.println(F("Invalidating Temperature Readings"));
@@ -281,6 +297,8 @@ void ServerTime(){
   unsigned long time = hashTable.getLong("now");
   lcd.setCursor(0,3);
   lcd.print(time);
+  lcd.print(F("    "));
+  lcd.print(memoryTest());
 
   t.after(60000,ServerTime);
 }
