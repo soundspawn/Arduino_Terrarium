@@ -26,6 +26,7 @@ byte heater_on = 0;
 const char genericAjaxSuccess[] PROGMEM = "{\"result\":true";
 const char genericAjaxFailure[] PROGMEM = "{\"result\":false";
 const char genericAjaxClose[] PROGMEM = "}";
+
 #define SERIALCOM
 
 enum {
