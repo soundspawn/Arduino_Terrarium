@@ -222,6 +222,7 @@ void httpServer(){
     String HTTP_req = "";
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
+    char buffer[60] = {};
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
