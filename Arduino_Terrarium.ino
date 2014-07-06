@@ -503,6 +503,7 @@ char* Ajax(char *url){
     }
     return d2;
   }
+  serverajax.stop();
   return (char*)F("{\"result\":false,\"message\":\"Arduino Ajax Connection Error\"}");
 }
 
