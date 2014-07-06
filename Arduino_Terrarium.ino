@@ -63,6 +63,9 @@ enum {
   D6_pin = 6,
   D7_pin = 7,
 };
+#define LCD_COLUMNS 20
+#define LCD_ROWS 4
+
 LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin,3, POSITIVE);
 
 byte mac[] = { 0xDE, 0xAD, 0xB0, 0xEF, 0xFE, 0xAF };
@@ -93,7 +96,7 @@ void setup() {
     Serial.println(F("Serial Connection Established"));
   #endif
   
-  lcd.begin (20,4);
+  lcd.begin (LCD_COLUMNS,LCD_ROWS);
   // Switch on the backlight
   lcd.setBacklightPin(BACKLIGHT_PIN,POSITIVE);
   lcd.setBacklight(HIGH);
