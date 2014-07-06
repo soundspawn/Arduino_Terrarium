@@ -26,7 +26,7 @@ byte humidity = 0;
 byte heater_on = 0;
 
 //Color Intensities
-byte colors[] = {0,0,0};
+float colors[] = {0,0,0};
 float gradient[] = {0,0,0};
 byte color_gradient_timer = 255;
 
