@@ -28,6 +28,9 @@ byte heater_on = 0;
 //Color Intensities
 float colors[] = {0,0,0};
 float gradient[] = {0,0,0};
+//Timer IDs
+byte TempHumTimer = 255;
+byte ServerTimeTimer = 255;
 byte color_gradient_timer = 255;
 
 const char genericAjaxSuccess[] PROGMEM = "{\"result\":true";
