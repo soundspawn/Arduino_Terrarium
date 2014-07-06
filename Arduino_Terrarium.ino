@@ -334,7 +334,7 @@ void httpServer(){
           client.println(F("Connection: close"));  // the connection will be closed after completion of the response
           client.println();
 
-          if(HTTP_req.indexOf("/get_temperature") == 4){
+          if(HTTP_req.indexOf("/status") == 4){
             strcpy_P(buffer,genericAjaxSuccess);
             client.print(buffer);
             client.print(F(",\"temperature\":"));
