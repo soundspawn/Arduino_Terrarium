@@ -319,13 +319,21 @@ void httpServer(){
   client = server.available();
   if (client) {
     String HTTP_req = "";
+    int connectLoop = 0;
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
     char buffer[60] = {};
     while (client.connected()) {
+      connectLoop++;
       if (client.available()) {
         char c = client.read();
+        connectLoop = 0;
         HTTP_req += c;
+
+        if(connectLoop > 1000){
+          client.stop();
+          return;
+        }
 
         if (c == '\n' && currentLineIsBlank) {
           // send a standard http response header
