@@ -298,6 +298,14 @@ void color_gradient(){
   for(int i = 0; i < 3; i++){
     set_color_intensity(i,colors[i] + gradient[i]);
   }
+  #ifdef SERIALCOM
+    Serial.print(F("Gradient changed to "));
+    Serial.print(colors[0]);
+    Serial.print(F(" "));
+    Serial.print(colors[1]);
+    Serial.print(F(" "));
+    Serial.println(colors[2]);
+  #endif
 }
 
 void set_rgb(byte red, byte green, byte blue){
