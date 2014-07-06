@@ -406,13 +406,13 @@ void httpServer(){
             sub = HTTP_req.substring(18,100);
             sub = sub.substring(0,sub.indexOf("/"));
             byte red = sub.toInt();
-            sub2 = HTTP_req.substring(13+sub.length()+1,100);
+            sub2 = HTTP_req.substring(18+sub.length()+1,100);
             sub2 = sub2.substring(0,sub2.indexOf("/"));
             byte green = sub2.toInt();
-            sub3 = HTTP_req.substring(13+sub.length()+sub2.length()+2,100);
+            sub3 = HTTP_req.substring(18+sub.length()+sub2.length()+2,100);
             sub3 = sub2.substring(0,sub3.indexOf("/"));
             byte blue = sub3.toInt();
-            sub3 = HTTP_req.substring(13+sub.length()+sub2.length()+sub3.length()+3,100);
+            sub3 = HTTP_req.substring(18+sub.length()+sub2.length()+sub3.length()+3,100);
             unsigned long time = sub3.toInt();
 
             #ifdef SERIALCOM
