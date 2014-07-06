@@ -489,8 +489,8 @@ char* Ajax(char *url){
         message += c;
       }
       if(connectLoop > 10000){
-        return (char*)F("{\"result\":false,\"message\":\"AJAX Timeout\"}");
         serverajax.stop();
+        return (char*)F("{\"result\":false,\"message\":\"AJAX Timeout\"}");
       }
     }
     submessage = message.substring(message.indexOf("{"),message.length());
