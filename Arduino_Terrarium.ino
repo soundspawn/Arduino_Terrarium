@@ -221,36 +221,74 @@ void heaterLogic(){
   }
 }
 
-void set_color_intensity(byte color, byte intensity){
-  analogWrite(lightPins[color], intensity);
+void set_color_intensity(byte color, float intensity){
+  #ifdef SERIALCOM
+    Serial.print(F("Setting color "));
+    Serial.print(color);
+    Serial.print(F(" to "));
+    Serial.println(floor(intensity+0.5));
+  #endif
+  if(color == (int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS)){
+    lcd.setCursor(0,0);
+    lcd.print(colors[color]);
+    lcd.print(F("    "));
+    lcd.print((byte)floor(intensity+0.5f));
+    lcd.print(F("   "));
+  }
+  analogWrite(lightPins[color], (byte)floor(intensity+0.5f));
   colors[color] = intensity;
 }
 
 void set_color_gradient(byte red, byte green, byte blue, unsigned long transition_time){
-  signed int gradients[3];
-  signed long seconds = transition_time/1000;
-  signed long secondMod = 1;
-  byte i = 0;
-  byte lowest = 0;
-  gradients[0] = (colors[0] - red) / seconds;
-  gradients[1] = (colors[1] - green) / seconds;
-  gradients[2] = (colors[2] - blue) / seconds;
+  float gradients[3];
+  signed long seconds;
+  signed long secondMod;
+  byte i;
+  byte lowest;
+
+  seconds = max(transition_time/1000,1);
+  lowest = 10;
+  secondMod = 1;
+
+  gradients[0] = ((float)red - colors[0]) / seconds;
+  gradients[1] = ((float)green - colors[1]) / seconds;
+  gradients[2] = ((float)blue - colors[2]) / seconds;
   //increase the secondMod until at least one color is incrementing by a whole number
-  for(i=1;i<3;i++){
-    if(gradients[i]>0 && gradients[i] < gradients[lowest]){
+  for(i=0;i<3;i++){
+    if(abs(gradients[i])>0.00f && (lowest == 10 || abs(gradients[i]) < abs(gradients[lowest]))){
       lowest = i;
     }
   }
-  while(gradients[lowest]>0 && gradients[lowest]*secondMod < 1){
+  while(abs(gradients[lowest])>10 && fabs(gradients[lowest])*secondMod < 0.001){
     secondMod++;
   }
   //Stop any existing gradient timer
   t.stop(color_gradient_timer);
-  if(gradients[lowest] > 0 && seconds > 0){
+  if(abs(gradients[lowest]) > 0 && seconds > 0){
     gradient[0] = gradients[0]*secondMod;
     gradient[1] = gradients[1]*secondMod;
     gradient[2] = gradients[2]*secondMod;
     color_gradient_timer = t.every(1000*secondMod,color_gradient,floor(seconds/secondMod));
+    #ifdef SERIALCOM
+      Serial.println(F("Setting a Color Gradient"));
+      Serial.print(F("From "));
+      Serial.print(colors[0]);
+      Serial.print(F(" "));
+      Serial.print(colors[1]);
+      Serial.print(F(" "));
+      Serial.println(colors[2]);
+      Serial.print(F("At Rate "));
+      Serial.print(gradient[0]);
+      Serial.print(F(" "));
+      Serial.print(gradient[1]);
+      Serial.print(F(" "));
+      Serial.println(gradient[2]);
+      Serial.print(F("Every "));
+      Serial.print(1000*secondMod);
+      Serial.print(F("ms, "));
+      Serial.print(floor(seconds/secondMod));
+      Serial.println(F(" times"));
+    #endif
   }
 }
 
