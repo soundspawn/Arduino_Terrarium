@@ -59,21 +59,19 @@ Dht11 sensor(DHT_DATA_PIN);
 #define COLOR_DIVISIONS (int)(1024 / (LIGHT_COLORS+1))+2
 byte lightPins[] = {REDLIGHT_PIN,GREENLIGHT_PIN,BLUELIGHT_PIN};
 
-enum {
-  I2C_ADDR = 0x3F,
-  BACKLIGHT_PIN = 3,
-  En_pin = 2,
-  Rw_pin = 1,
-  Rs_pin = 0,
-  D4_pin = 4,
-  D5_pin = 5,
-  D6_pin = 6,
-  D7_pin = 7,
-};
+#define LCD_I2C_ADDR 0x3F
+#define LCD_BACKLIGHT_PIN 3
+#define LCD_En_pin 2
+#define LCD_Rw_pin 1
+#define LCD_Rs_pin 0
+#define LCD_D4_pin 4
+#define LCD_D5_pin 5
+#define LCD_D6_pin 6
+#define LCD_D7_pin 7
 #define LCD_COLUMNS 20
 #define LCD_ROWS 4
 
-LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin,3, POSITIVE);
+LiquidCrystal_I2C	lcd(LCD_I2C_ADDR,LCD_En_pin,LCD_Rw_pin,LCD_Rs_pin,LCD_D4_pin,LCD_D5_pin,LCD_D6_pin,LCD_D7_pin,3, POSITIVE);
 
 byte mac[] = { 0xDE, 0xAD, 0xB0, 0xEF, 0xFE, 0xAF };
 IPAddress ip(192,168,1, 16);
@@ -104,7 +102,7 @@ void setup() {
   
   lcd.begin (LCD_COLUMNS,LCD_ROWS);
   // Switch on the backlight
-  lcd.setBacklightPin(BACKLIGHT_PIN,POSITIVE);
+  lcd.setBacklightPin(LCD_BACKLIGHT_PIN,POSITIVE);
   lcd.setBacklight(HIGH);
 
   //Set up color select pins
