@@ -21,13 +21,17 @@ Timer t;
 
 byte desired_temperature = 76;
 byte temperature_allowance = 3;
+byte desired_humidity = 55;
+byte humidity_allowance = 5;
 byte temperature = 0;
 byte humidity = 0;
 byte heater_on = 0;
+byte humidifier_on = 0;
 
 //Color Intensities
 float colors[] = {0,0,0};
 float gradient[] = {0,0,0};
+
 //Timer IDs
 byte TempHumTimer = 255;
 byte ServerTimeTimer = 255;
@@ -145,6 +149,9 @@ void invalidateTempReadings(){
   temperature = 0;
   humidity = 0;
   digitalWrite(HEATER_RELAY_PIN, LOW);
+  digitalWrite(HUMIDIFIER_RELAY_PIN, LOW);
+  heater_on = 0;
+  humidifier_on = 0;
 }
 
 void updateTempHum(){
@@ -198,7 +205,8 @@ void updateTempHum(){
 
   //Decide what to do with the heater
   heaterLogic();
-  t.after(60000,updateTempHum);
+  humidifierLogic();
+  TempHumTimer = t.after(60000,updateTempHum);
 }
 
 void heaterLogic(){
@@ -221,6 +229,28 @@ void heaterLogic(){
       Serial.println(F("Turning Heater Off"));
     #endif
   }
+}
+
+void humidifierLogic(){
+  if(humidity == 0){
+    //error, make no decisions
+    return;
+  }
+  if((humidifier_on == 0 && humidity < (desired_humidity-humidity_allowance)) ||
+     (humidifier_on == 1 && humidity < (desired_humidity+humidity_allowance))
+   ){
+     digitalWrite(HUMIDIFIER_RELAY_PIN, HIGH);
+     humidifier_on = 1;
+     #ifdef SERIALCOM
+       Serial.println(F("Turning Humdifier On"));
+     #endif
+   }else{
+     digitalWrite(HUMIDIFIER_RELAY_PIN, LOW);
+     humidifier_on = 0;
+     #ifdef SERIALCOM
+       Serial.println(F("Turning Humidifier Off"));
+     #endif
+   }
 }
 
 void set_color_intensity(byte color, float intensity){
@@ -355,6 +385,10 @@ void httpServer(){
             client.print(temperature_allowance);
             client.print(F(",\"heater_status\":"));
             client.print(heater_on);
+            client.print(F(",\"target_humidity\":"));
+            client.print(desired_humidity);
+            client.print(F(",\"humidity_variance\":"));
+            client.print(humidity_allowance);
             strcpy_P(buffer,genericAjaxClose);
             client.print(buffer);
           }
