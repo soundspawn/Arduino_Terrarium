@@ -150,7 +150,7 @@ void updateTempHum(){
   switch (sensor.read()) {
     case Dht11::OK:
       if(sensor.getTemperature() == 0){
-        t.after(200,updateTempHum);
+        TempHumTimer = t.after(500,updateTempHum);
         return;
       }
       temperature = Fahrenheit(sensor.getTemperature());
@@ -177,19 +177,19 @@ void updateTempHum(){
       #ifdef SERIALCOM
         Serial.println(F("Checksum error"));
       #endif
-      t.after(200,updateTempHum);
+      TempHumTimer = t.after(500,updateTempHum);
       return;
     case Dht11::ERROR_TIMEOUT:
       #ifdef SERIALCOM
         Serial.println(F("Timeout error"));
       #endif
-      t.after(200,updateTempHum);
+      TempHumTimer = t.after(500,updateTempHum);
       return;
     default:
       #ifdef SERIALCOM
         Serial.println(F("Unknown error"));
       #endif
-      t.after(200,updateTempHum);
+      TempHumTimer = t.after(500,updateTempHum);
       return;
   }
 
