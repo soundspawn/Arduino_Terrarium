@@ -555,16 +555,4 @@ void loop() {
 
   //Receive http request
   httpServer();
-   
-  colorSelect = (int)(analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS);
-  dimmer = analogRead(DIMMER_INPUT);
-  set_color_intensity(colorSelect, dimmer / 4);
-  if((int)analogRead(COLOR_SELECT_INPUT) / COLOR_DIVISIONS < 3){
-    delay(200);
-    lcd.setCursor(0,0);
-    lcd.print(F("Color "));
-    lcd.print(colorSelect);
-    lcd.print(F(" = "));
-    lcd.print(dimmer / 4);
-  }
 }
