@@ -36,26 +36,20 @@ const char genericAjaxClose[] PROGMEM = "}";
 
 #define SERIALCOM
 
-enum {
-    // The data I/O pin connected to the DHT11 sensor
-    DHT_DATA_PIN = 9,
-    // The baud rate of the serial interface
-    SERIAL_BAUD  = 9600,
-
-    COLOR_SELECT_INPUT = A0,
-    DIMMER_INPUT = A1,
-    HEATER_RELAY_PIN = 8,
-};
+#define DHT_DATA_PIN 9
+#define SERIAL_BAUD 9600
+#define COLOR_SELECT_INPUT A0
+#define DIMMER_INPUT A1
+#define HEATER_RELAY_PIN 8
+#define HUMIDIFIER_RELAY_PIN 7
 
 Dht11 sensor(DHT_DATA_PIN);
 
 #define LIGHT_COLORS 3
-enum {
-  REDLIGHT_PIN = 2,
-  GREENLIGHT_PIN = 3,
-  BLUELIGHT_PIN = 4,
-  COLOR_DIVISIONS = (int)(1024 / (LIGHT_COLORS+1))+2,
-};
+#define REDLIGHT_PIN 2
+#define GREENLIGHT_PIN 3
+#define BLUELIGHT_PIN 4
+#define COLOR_DIVISIONS (int)(1024 / (LIGHT_COLORS+1))+2
 byte lightPins[] = {REDLIGHT_PIN,GREENLIGHT_PIN,BLUELIGHT_PIN};
 
 enum {
