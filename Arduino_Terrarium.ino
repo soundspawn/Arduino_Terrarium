@@ -17,7 +17,7 @@
 #include <JsonObjectBase.h>
 #include <JsonParser.h>
 
-Timer t;
+Timer t = Timer(8);
 
 byte desired_temperature = 76;
 byte temperature_allowance = 3;
