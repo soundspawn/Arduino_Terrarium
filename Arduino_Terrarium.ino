@@ -508,19 +508,36 @@ char* Ajax(char *url){
 }
 
 void ServerTime(){
+  lcd.setCursor(0,3);
+  lcd.print("Calling Ajax");
   char* ajax = Ajax("terrarium/get_time");
+  lcd.setCursor(0,3);
+    lcd.print("Returned");
+  boolean result;
   hashTable = parser.parseHashTable(ajax);
   if(!hashTable.success()){
-    t.after(1000,ServerTime);
+    ServerTimeTimer = t.after(1000,ServerTime);
+    lcd.setCursor(0,3);
+    lcd.print("HTF: ");
+    lcd.print(ajax);
     return;
   }
-  unsigned long time = hashTable.getLong("now");
   lcd.setCursor(0,3);
-  lcd.print(time);
-  lcd.print(F("    "));
-  lcd.print(memoryTest());
+  lcd.print("                    ");
+  lcd.setCursor(0,3);
 
-  t.after(60000,ServerTime);
+  result = hashTable.getBool("result");
+  if(result == true){
+    unsigned long time = hashTable.getLong("now");
+    lcd.print(time);
+    lcd.print(F("    "));
+    lcd.print(memoryTest());
+  }else{
+    char* error = hashTable.getString("message");
+    lcd.print(error);
+  }
+
+  ServerTimeTimer = t.after(20000,ServerTime);
 }
 
 /*
