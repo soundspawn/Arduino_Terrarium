@@ -75,7 +75,6 @@ EthernetClient client;
 EthernetClient serverajax;
 
 boolean ServerConnected = false;
-int ServerTimeout;
 
 JsonParser<32> parser;
 JsonHashTable hashTable;
