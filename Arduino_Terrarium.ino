@@ -471,7 +471,7 @@ void httpServer(){
 char* Ajax(char *url){
   String message;
   String submessage;
-  int connectLoop = 0;
+  unsigned int connectLoop = 0;
   char c;
   message = "";
   if(serverajax.connect("soundspawn.com",80)){
