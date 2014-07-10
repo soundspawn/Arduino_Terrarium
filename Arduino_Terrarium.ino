@@ -3,6 +3,7 @@
  *
  * Main Program to control in-home Terrarium
  */
+#include "settings.h"
 #include "Arduino.h"
 #include "Timer.h"
 #include <Dht11.h>
@@ -506,8 +507,9 @@ char* Ajax(char *url){
   unsigned int connectLoop = 0;
   char c;
   message = "";
-  if(serverajax.connect("soundspawn.com",80)){
-    serverajax.print(F("GET /proxy/proxy.php?url=https%3A//jarvis.soundspawn.com/"));
+  if(serverajax.connect(WEBSITE,80)){
+    serverajax.print(F("GET "));
+    serverajax.print(WEBSITE_PROXY);
     serverajax.print(url);
     serverajax.println(F(" HTTP/1.0"));
     serverajax.println(F("Host: soundspawn.com"));

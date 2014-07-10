@@ -1,0 +1,7 @@
+#ifndef TERRARIUM_SETTINGS
+#define TERRARIUM_SETTINGS
+
+char *WEBSITE PROGMEM = "soundspawn.com";
+char *WEBSITE_PROXY PROGMEM = "/proxy/proxy.php?url=https%3A//jarvis.soundspawn.com/";
+
+#endif
