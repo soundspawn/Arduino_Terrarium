@@ -566,6 +566,11 @@ void ServerTime(){
     lcd.print(time);
     lcd.print(F("    "));
     lcd.print(memoryTest());
+    unsigned long var = hashTable.getLong("temp");
+    desired_temperature = var;
+    var = hashTable.getLong("variance");
+    temperature_allowance = var;
+    heaterLogic();
   }else{
     char* error = hashTable.getString("message");
     lcd.print(error);
