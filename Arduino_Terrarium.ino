@@ -548,6 +548,7 @@ void ServerTime(){
   lcd.setCursor(0,3);
     lcd.print("Returned");
   boolean result;
+  unsigned long var;
   hashTable = parser.parseHashTable(ajax);
   if(!hashTable.success()){
     ServerTimeTimer = t.after(1000,ServerTime);
@@ -566,17 +567,35 @@ void ServerTime(){
     lcd.print(time);
     lcd.print(F("    "));
     lcd.print(memoryTest());
-    unsigned long var = hashTable.getLong("temp");
+    var = hashTable.getLong("temp");
     desired_temperature = var;
     var = hashTable.getLong("variance");
     temperature_allowance = var;
     heaterLogic();
+    //Set colors
+    var = hashTable.getLong("red");
+    set_color_intensity(0,var);
+    var = hashTable.getLong("green");
+    set_color_intensity(1,var);
+    var = hashTable.getLong("blue");
+    set_color_intensity(2,var);
+    var = hashTable.getLong("gradient");
+    if(var == 1){
+      unsigned long red = hashTable.getLong("gRed");
+      unsigned long green = hashTable.getLong("gGreen");
+      unsigned long blue = hashTable.getLong("gBlue");
+      var = hashTable.getLong("gTime");
+      set_color_gradient(red,green,blue,var);
+    }
+    //Let the server tell us when to check back
+    var = hashTable.getLong("callback_timer");
   }else{
     char* error = hashTable.getString("message");
     lcd.print(error);
+    //Re-call in 20 seconds
+    var = 20000;
   }
-
-  ServerTimeTimer = t.after(20000,ServerTime);
+  ServerTimeTimer = t.after(var,ServerTime);
 }
 
 /*
