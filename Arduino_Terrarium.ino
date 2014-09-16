@@ -566,10 +566,11 @@ void ServerTime(){
     unsigned long time = hashTable.getLong("now");
     lcd.print(time);
     lcd.print(F("    "));
-    lcd.print(memoryTest());
+    //lcd.print(memoryTest());
+    lcd.print(F("K"));
     var = hashTable.getLong("temp");
     desired_temperature = var;
-    var = hashTable.getLong("variance");
+    var = hashTable.getLong("var");
     temperature_allowance = var;
     heaterLogic();
     //Set colors
@@ -588,7 +589,7 @@ void ServerTime(){
       set_color_gradient(red,green,blue,var);
     }
     //Let the server tell us when to check back
-    var = hashTable.getLong("callback_timer");
+    var = hashTable.getLong("cbt");
   }else{
     char* error = hashTable.getString("message");
     lcd.print(error);
