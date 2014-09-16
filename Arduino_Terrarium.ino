@@ -529,7 +529,7 @@ char* Ajax(char *url){
     }
     submessage = message.substring(message.indexOf("{"),message.length());
     submessage += "}";
-    char d2[submessage.length()];
+    char d2[message.length()];
     submessage.toCharArray(d2,submessage.length());
     serverajax.stop();
     if(submessage.length() == 1){
