@@ -17,6 +17,7 @@
 #include <JsonHashTable.h>
 #include <JsonObjectBase.h>
 #include <JsonParser.h>
+#include <Bounce2.h>
 
 Timer t = Timer(8);
 
@@ -37,6 +38,7 @@ float gradient[] = {0,0,0};
 byte TempHumTimer = 255;
 byte ServerTimeTimer = 255;
 byte color_gradient_timer = 255;
+byte TempBackOffStateTimer = 255;
 
 const char genericAjaxSuccess[] PROGMEM = "{\"result\":true";
 const char genericAjaxFailure[] PROGMEM = "{\"result\":false";
@@ -44,12 +46,16 @@ const char genericAjaxClose[] PROGMEM = "}";
 
 #define SERIALCOM
 
+Bounce TempBackoffBounce = Bounce();
+byte TempBackOffState = 0;
+
 #define DHT_DATA_PIN 9
 #define SERIAL_BAUD 9600
 #define COLOR_SELECT_INPUT A0
 #define DIMMER_INPUT A1
 #define HEATER_RELAY_PIN 8
 #define HUMIDIFIER_RELAY_PIN 7
+#define TEMP_BACKOFF_PIN 22
 
 Dht11 sensor(DHT_DATA_PIN);
 
@@ -113,6 +119,10 @@ void setup() {
   pinMode(GREENLIGHT_PIN, OUTPUT);
   pinMode(BLUELIGHT_PIN, OUTPUT);
   
+  //Temperature Backoff Button
+  pinMode(TEMP_BACKOFF_PIN,INPUT_PULLUP);
+  TempBackoffBounce.attach(TEMP_BACKOFF_PIN);
+
   //Setup Outputs
   pinMode(HEATER_RELAY_PIN, OUTPUT);
 
@@ -209,12 +219,22 @@ void updateTempHum(){
 }
 
 void heaterLogic(){
+  byte atemp = desired_temperature;
+  //Temperature Backoff State is a blanket reduction of 6 degrees
+  //  but we want to ensure we don't manually drop below 72
+  if(TempBackOffState){
+    //If we're above 72, we can drop to as little as 72
+    if(atemp > 72){
+      atemp = max(72,atemp-6);
+    }
+  }
+
   if(temperature == 0){
     //error, make no decisions
     return;
   }
-  if((heater_on == 0 && temperature < (desired_temperature-temperature_allowance)) || 
-     (heater_on == 1 && temperature < desired_temperature)
+  if((heater_on == 0 && temperature < (atemp-temperature_allowance)) ||
+     (heater_on == 1 && temperature < atemp)
   ){
     digitalWrite(HEATER_RELAY_PIN, HIGH);
     heater_on = 1;
@@ -542,6 +562,7 @@ char* Ajax(char *url){
 }
 
 void ServerTime(){
+  t.stop(ServerTimeTimer);
   lcd.setCursor(0,3);
   lcd.print("Calling Ajax");
   char* ajax = Ajax("terrarium/get_time");
@@ -599,6 +620,38 @@ void ServerTime(){
   ServerTimeTimer = t.after(var,ServerTime);
 }
 
+void temp_backoff_restore(){
+  //Remoe the backoff flag
+  TempBackOffState = 0;
+  //Blink the lights to show anyone inside that the backoff is over
+  set_rgb(20,20,20);
+  delay(500);
+  set_rgb(200,200,200);
+  delay(500);
+  set_rgb(20,20,20);
+  delay(500);
+  set_rgb(200,200,200);
+  delay(500);
+  set_rgb(20,20,20);
+  delay(500);
+  set_rgb(200,200,200);
+  delay(500);
+  //Restore the server info (lighting)
+  ServerTime();
+  //update our Heater Logic
+  heaterLogic();
+}
+
+int temp_backoff_check(){
+  boolean changed = TempBackoffBounce.update();
+  if(changed && TempBackoffBounce.read() == 1){
+    TempBackOffState = 1;
+    heaterLogic();
+    t.stop(TempBackOffStateTimer);
+    TempBackOffStateTimer = t.after(3600000,temp_backoff_restore);
+  }
+}
+
 /*
  * loop
  *
@@ -611,6 +664,7 @@ void loop() {
   static int dimmer;
   
   t.update();
+  temp_backoff_check();
 
   //Receive http request
   httpServer();
