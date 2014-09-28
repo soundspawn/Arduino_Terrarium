@@ -44,39 +44,13 @@ const char genericAjaxSuccess[] PROGMEM = "{\"result\":true";
 const char genericAjaxFailure[] PROGMEM = "{\"result\":false";
 const char genericAjaxClose[] PROGMEM = "}";
 
-#define SERIALCOM
-
 Bounce TempBackoffBounce = Bounce();
 byte TempBackOffState = 0;
 
-#define DHT_DATA_PIN 9
-#define SERIAL_BAUD 9600
-#define COLOR_SELECT_INPUT A0
-#define DIMMER_INPUT A1
-#define HEATER_RELAY_PIN 8
-#define HUMIDIFIER_RELAY_PIN 7
-#define TEMP_BACKOFF_PIN 22
-
 Dht11 sensor(DHT_DATA_PIN);
 
-#define LIGHT_COLORS 3
-#define REDLIGHT_PIN 2
-#define GREENLIGHT_PIN 3
-#define BLUELIGHT_PIN 4
 #define COLOR_DIVISIONS (int)(1024 / (LIGHT_COLORS+1))+2
 byte lightPins[] = {REDLIGHT_PIN,GREENLIGHT_PIN,BLUELIGHT_PIN};
-
-#define LCD_I2C_ADDR 0x3F
-#define LCD_BACKLIGHT_PIN 3
-#define LCD_En_pin 2
-#define LCD_Rw_pin 1
-#define LCD_Rs_pin 0
-#define LCD_D4_pin 4
-#define LCD_D5_pin 5
-#define LCD_D6_pin 6
-#define LCD_D7_pin 7
-#define LCD_COLUMNS 20
-#define LCD_ROWS 4
 
 LiquidCrystal_I2C	lcd(LCD_I2C_ADDR,LCD_En_pin,LCD_Rw_pin,LCD_Rs_pin,LCD_D4_pin,LCD_D5_pin,LCD_D6_pin,LCD_D7_pin,3, POSITIVE);
 
