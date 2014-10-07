@@ -353,6 +353,11 @@ void httpServer(){
         connectLoop = 0;
         HTTP_req += c;
 
+        if(HTTP_req.length() > 250){
+          client.stop();
+          return;
+        }
+
         if(connectLoop > 1000){
           client.stop();
           return;
@@ -516,6 +521,10 @@ char* Ajax(char *url){
         connectLoop = 0;
         message += c;
       }
+      if(message.length() > 250){
+        serverajax.stop();
+        return (char*)F("{\"result\":false,\"message\":\"AJAX Too Long\"}");
+      }
       if(connectLoop > 10000){
         serverajax.stop();
         return (char*)F("{\"result\":false,\"message\":\"AJAX Timeout\"}");
@@ -643,3 +652,4 @@ void loop() {
   //Receive http request
   httpServer();
 }
+
