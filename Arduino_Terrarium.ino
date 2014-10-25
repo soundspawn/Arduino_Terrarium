@@ -368,7 +368,7 @@ void httpServer(){
         connectLoop = 0;
         HTTP_req += c;
 
-        if(HTTP_req.length() > 250){
+        if(HTTP_req.length() > 800){
           client.stop();
           return;
         }
