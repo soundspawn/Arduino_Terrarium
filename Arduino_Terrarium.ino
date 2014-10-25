@@ -65,6 +65,13 @@ boolean ServerConnected = false;
 JsonParser<32> parser;
 JsonHashTable hashTable;
 
+String HTTP_req;
+String AjaxMessage;
+String submessage;
+String sub;
+String sub2;
+String sub3;
+
 //Celsius to Fahrenheit conversion
 double Fahrenheit(double celsius){
   return 1.8 * celsius + 32;
@@ -99,6 +106,14 @@ void setup() {
 
   //Setup Outputs
   pinMode(HEATER_RELAY_PIN, OUTPUT);
+
+  //String init
+  HTTP_req.reserve(500);
+  AjaxMessage.reserve(800);
+  submessage.reserve(800);
+  sub.reserve(100);
+  sub2.reserve(100);
+  sub3.reserve(100);
 
   //Timer-based Function
   //These will set a timer upon their completion
@@ -341,7 +356,7 @@ void httpServer(){
   //Web Server
   client = server.available();
   if (client) {
-    String HTTP_req = "";
+    HTTP_req = "";
     int connectLoop = 0;
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
@@ -392,7 +407,6 @@ void httpServer(){
           }
 
           if(HTTP_req.indexOf("/set_color/") == 4){
-            String sub = "";
             sub = HTTP_req.substring(15,100);
             sub = sub.substring(0,sub.indexOf("/"));
             byte color = sub.toInt();
@@ -406,8 +420,6 @@ void httpServer(){
           }
 
           if(HTTP_req.indexOf("/set_rgb/") ==  4){
-            String sub = "";
-            String sub2 = "";
             sub = HTTP_req.substring(13,100);
             sub = sub.substring(0,sub.indexOf("/"));
             byte red = sub.toInt();
@@ -432,9 +444,6 @@ void httpServer(){
           }
 
           if(HTTP_req.indexOf("/set_gradient/") ==  4){
-            String sub = "";
-            String sub2 = "";
-            String sub3 = "";
             sub = HTTP_req.substring(18,100);
             sub = sub.substring(0,sub.indexOf("/"));
             byte red = sub.toInt();
@@ -466,7 +475,6 @@ void httpServer(){
           }
 
           if(HTTP_req.indexOf("/set_thermostat/") == 4){
-            String sub = "";
             sub = HTTP_req.substring(20,100);
             sub = sub.substring(0,sub.indexOf("/"));
             desired_temperature = sub.toInt();
@@ -501,11 +509,9 @@ void httpServer(){
 }
 
 char* Ajax(char *url){
-  String message;
-  String submessage;
   unsigned int connectLoop = 0;
   char c;
-  message = "";
+  AjaxMessage = "";
   if(serverajax.connect(WEBSITE,80)){
     serverajax.print(F("GET "));
     serverajax.print(WEBSITE_PROXY);
@@ -519,9 +525,9 @@ char* Ajax(char *url){
       if(serverajax.available()){
         c = serverajax.read();
         connectLoop = 0;
-        message += c;
+        AjaxMessage += c;
       }
-      if(message.length() > 250){
+      if(AjaxMessage.length() > 800){
         serverajax.stop();
         return (char*)F("{\"result\":false,\"message\":\"AJAX Too Long\"}");
       }
@@ -530,9 +536,8 @@ char* Ajax(char *url){
         return (char*)F("{\"result\":false,\"message\":\"AJAX Timeout\"}");
       }
     }
-    submessage = message.substring(message.indexOf("{"),message.length());
-    submessage += "}";
-    char d2[message.length()];
+    submessage = AjaxMessage.substring(AjaxMessage.indexOf("{"),AjaxMessage.length())+"}";
+    char d2[AjaxMessage.length()];
     submessage.toCharArray(d2,submessage.length());
     serverajax.stop();
     if(submessage.length() == 1){
