@@ -8,8 +8,7 @@
 #include "Timer.h"
 #include <Dht11.h>
 #include <Wire.h>
-#include <LCD.h>
-#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal.h>
 #include <SPI.h>
 #include <Ethernet.h>
 #include <avr/wdt.h>
@@ -52,7 +51,7 @@ Dht11 sensor(DHT_DATA_PIN);
 #define COLOR_DIVISIONS (int)(1024 / (LIGHT_COLORS+1))+2
 byte lightPins[] = {REDLIGHT_PIN,GREENLIGHT_PIN,BLUELIGHT_PIN};
 
-LiquidCrystal_I2C	lcd(LCD_I2C_ADDR,LCD_En_pin,LCD_Rw_pin,LCD_Rs_pin,LCD_D4_pin,LCD_D5_pin,LCD_D6_pin,LCD_D7_pin,3, POSITIVE);
+LiquidCrystal lcd(LCD_I2C_ADDR,LCD_En_pin,LCD_Rw_pin,LCD_Rs_pin,LCD_D4_pin,LCD_D5_pin,LCD_D6_pin,LCD_D7_pin,3, 1);
 
 byte mac[] = { 0xDE, 0xAD, 0xB0, 0xEF, 0xFE, 0xAF };
 IPAddress ip(192,168,1, 16);
@@ -89,9 +88,6 @@ void setup() {
   #endif
   
   lcd.begin (LCD_COLUMNS,LCD_ROWS);
-  // Switch on the backlight
-  lcd.setBacklightPin(LCD_BACKLIGHT_PIN,POSITIVE);
-  lcd.setBacklight(HIGH);
 
   //Set up color select pins
   pinMode(COLOR_SELECT_INPUT, INPUT);
